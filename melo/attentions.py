@@ -267,7 +267,7 @@ class MultiHeadAttention(nn.Module):
 
     def attention(self, query, key, value, mask=None):
         # reshape [b, d, t] -> [b, n_h, t, d_k]
-        b, d, t_s, t_t = (*key.size(), query.size(2))
+        b, d, t_s, t_t = (key.size(0), key.size(1), key.size(2), query.size(2))
         query = query.view(b, self.n_heads, self.k_channels, t_t).transpose(2, 3)
         key = key.view(b, self.n_heads, self.k_channels, t_s).transpose(2, 3)
         value = value.view(b, self.n_heads, self.k_channels, t_s).transpose(2, 3)
@@ -312,7 +312,7 @@ class MultiHeadAttention(nn.Module):
                 relative_weights, value_relative_embeddings
             )
         output = (
-            output.transpose(2, 3).contiguous().view(b, d, t_t)
+            output.transpose(2, 3).contiguous().view(b, d, -1)
         )  # [b, n_h, t_t, d_k] -> [b, d, t_t]
         return output, p_attn
 
